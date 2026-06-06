@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { AuthWrapper } from '@/features/auth/components/AuthWrapper'
+import { useLoginMutation } from '@/features/auth/hooks/useLoginMutation'
 import { LoginSchema, TypeLoginSchema } from '@/features/auth/schemes'
 
 import { Button, Input } from '@/shared/components/ui'
@@ -26,15 +27,16 @@ export function LoginForm() {
 	const form = useForm<TypeLoginSchema>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
-			name: '',
 			email: '',
 			password: ''
 		}
 	})
 
+	const { login, isLoadingLogin } = useLoginMutation()
+
 	const onSubmit = (values: TypeLoginSchema) => {
 		if (recaptchaValue) {
-			console.log(values)
+			login({ values, recaptcha: recaptchaValue })
 		} else {
 			toast.error('Please finish reCAPTCHA')
 		}
@@ -44,7 +46,7 @@ export function LoginForm() {
 		<AuthWrapper
 			heading='Login'
 			description='To login the site enter your email and password'
-			backButtonLabel='Already have an account? Login'
+			backButtonLabel='Do not have an account? Register'
 			backButtonHref='/auth/register'
 			isShowSocial
 		>
@@ -55,7 +57,7 @@ export function LoginForm() {
 				>
 					<FormField
 						control={form.control}
-						name='name'
+						name='email'
 						render={({ field }) => (
 							<FormItem>
 								<FormItem>Email</FormItem>
@@ -64,23 +66,7 @@ export function LoginForm() {
 										placeholder='max@example.com'
 										type='email'
 										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name='name'
-						render={({ field }) => (
-							<FormItem>
-								<FormItem>Name</FormItem>
-								<FormControl>
-									<Input
-										placeholder='Max'
-										type='email'
-										{...field}
+										disabled={isLoadingLogin}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -98,6 +84,7 @@ export function LoginForm() {
 										placeholder='******'
 										type='password'
 										{...field}
+										disabled={isLoadingLogin}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -113,7 +100,9 @@ export function LoginForm() {
 							theme={theme === 'light' ? 'light' : 'dark'}
 						/>
 					</div>
-					<Button type='submit'>Login account</Button>
+					<Button type='submit' disabled={isLoadingLogin}>
+						Login account
+					</Button>
 				</form>
 			</Form>
 		</AuthWrapper>

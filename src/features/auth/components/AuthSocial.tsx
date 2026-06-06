@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation'
 import { FaGoogle } from 'react-icons/fa'
 
 import { Button } from '@/shared/components/ui'

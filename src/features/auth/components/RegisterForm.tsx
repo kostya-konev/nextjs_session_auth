@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { AuthWrapper } from '@/features/auth/components/AuthWrapper'
+import { useRegisterMutation } from '@/features/auth/hooks'
 import { RegisterSchema, TypeRegisterSchema } from '@/features/auth/schemes'
 
 import { Button, Input } from '@/shared/components/ui'
@@ -33,9 +34,11 @@ export function RegisterForm() {
 		}
 	})
 
+	const { register, isLoadingRegister } = useRegisterMutation()
+
 	const onSubmit = (values: TypeRegisterSchema) => {
 		if (recaptchaValue) {
-			console.log(values)
+			register({ values, recaptcha: recaptchaValue })
 		} else {
 			toast.error('Please finish reCAPTCHA')
 		}
@@ -59,12 +62,12 @@ export function RegisterForm() {
 						name='name'
 						render={({ field }) => (
 							<FormItem>
-								<FormItem>Email</FormItem>
+								<FormItem>Name</FormItem>
 								<FormControl>
 									<Input
-										placeholder='max@example.com'
-										type='email'
+										placeholder='Max'
 										{...field}
+										disabled={isLoadingRegister}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -73,15 +76,16 @@ export function RegisterForm() {
 					/>
 					<FormField
 						control={form.control}
-						name='name'
+						name='email'
 						render={({ field }) => (
 							<FormItem>
-								<FormItem>Name</FormItem>
+								<FormItem>Email</FormItem>
 								<FormControl>
 									<Input
-										placeholder='Max'
+										placeholder='max@example.com'
 										type='email'
 										{...field}
+										disabled={isLoadingRegister}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -99,6 +103,7 @@ export function RegisterForm() {
 										placeholder='******'
 										type='password'
 										{...field}
+										disabled={isLoadingRegister}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -131,7 +136,9 @@ export function RegisterForm() {
 							theme={theme === 'light' ? 'light' : 'dark'}
 						/>
 					</div>
-					<Button type='submit'>Create account</Button>
+					<Button type='submit' disabled={isLoadingRegister}>
+						Create account
+					</Button>
 				</form>
 			</Form>
 		</AuthWrapper>

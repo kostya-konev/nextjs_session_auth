@@ -1,6 +1,7 @@
 'use client'
 
 import { type PropsWithChildren } from 'react'
+import { Toaster } from 'sonner'
 
 import { TanstackQueryProvider } from '@/shared/providers/TanstackQueryProvider'
 
@@ -16,6 +17,7 @@ export function MainProvider({ children }: PropsWithChildren<unknown>) {
 				storageKey='project-theme'
 			>
 				{children}
+				<Toaster theme='system' position='bottom-right' richColors />
 			</ThemeProvider>
 		</TanstackQueryProvider>
 	)
