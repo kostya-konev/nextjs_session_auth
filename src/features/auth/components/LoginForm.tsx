@@ -1,8 +1,10 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { FormLabel } from '@radix-ui/react-form'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import Link from 'next/link'
+import { use, useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -23,16 +25,18 @@ import {
 export function LoginForm() {
 	const { theme } = useTheme()
 	const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null)
+	const [isShowTwoFactor, setIsShowTwoFactor] = useState(false)
 
 	const form = useForm<TypeLoginSchema>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
 			email: '',
-			password: ''
+			password: '',
+			code: ''
 		}
 	})
 
-	const { login, isLoadingLogin } = useLoginMutation()
+	const { login, isLoadingLogin } = useLoginMutation(setIsShowTwoFactor)
 
 	const onSubmit = (values: TypeLoginSchema) => {
 		if (recaptchaValue) {
@@ -55,42 +59,73 @@ export function LoginForm() {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className='grid gap-2 space-y-2'
 				>
-					<FormField
-						control={form.control}
-						name='email'
-						render={({ field }) => (
-							<FormItem>
-								<FormItem>Email</FormItem>
-								<FormControl>
-									<Input
-										placeholder='max@example.com'
-										type='email'
-										{...field}
-										disabled={isLoadingLogin}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name='password'
-						render={({ field }) => (
-							<FormItem>
-								<FormItem>Password</FormItem>
-								<FormControl>
-									<Input
-										placeholder='******'
-										type='password'
-										{...field}
-										disabled={isLoadingLogin}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+					{isShowTwoFactor && (
+						<FormField
+							control={form.control}
+							name='code'
+							render={({ field }) => (
+								<FormItem>
+									<FormItem>Code</FormItem>
+									<FormControl>
+										<Input
+											placeholder='123456'
+											{...field}
+											disabled={isLoadingLogin}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					)}
+					{!isShowTwoFactor && (
+						<>
+							<FormField
+								control={form.control}
+								name='email'
+								render={({ field }) => (
+									<FormItem>
+										<FormItem>Email</FormItem>
+										<FormControl>
+											<Input
+												placeholder='max@example.com'
+												type='email'
+												{...field}
+												disabled={isLoadingLogin}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name='password'
+								render={({ field }) => (
+									<FormItem>
+										<div className='flex items-center justify-between'>
+											<FormItem>Password</FormItem>
+											<Link
+												href='/auth/reset-password'
+												className='ml-auto inline-block text-sm underline'
+											>
+												Forgot password?
+											</Link>
+										</div>
+										<FormControl>
+											<Input
+												placeholder='******'
+												type='password'
+												{...field}
+												disabled={isLoadingLogin}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</>
+					)}
 					<div className='flex justify-center'>
 						<ReCAPTCHA
 							sitekey={
