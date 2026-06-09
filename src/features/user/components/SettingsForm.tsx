@@ -35,7 +35,7 @@ export function SettingsForm() {
 
 	const form = useForm<TypeSettingsSchema>({
 		resolver: zodResolver(SettingsSchema),
-		defaultValues: {
+		values: {
 			name: user?.displayName || '',
 			email: user?.email || '',
 			isTwoFactorEnabled: user?.isTwoFactorEnabled || false
